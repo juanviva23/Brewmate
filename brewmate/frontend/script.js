@@ -1,6 +1,6 @@
 // BrewMate frontend — consume la API de FastAPI (backend/app.py)
 // Apunta al backend ya desplegado en Render. Si corrés todo local, cambiá esto
-// por "http://localhost:8010/api/recipes" (y el equivalente para GRAIN_WATER_URL).
+// por "http://localhost:8010/api/recipes" (y los equivalentes de abajo).
 const API_URL = "https://brewmate-api.onrender.com/api/recipes";
 const GRAIN_WATER_URL = "https://brewmate-api.onrender.com/api/calculators/grain-water";
 const ABV_URL = "https://brewmate-api.onrender.com/api/calculators/abv";
@@ -78,7 +78,62 @@ form.addEventListener("submit", async (e) => {
     statusMsg.textContent = "✅ Receta agregada";
     statusMsg.style.color = "#16a34a";
     form.reset();
-    // --- Calculadora rápida de ABV ---
+    fetchRecipes();
+    setTimeout(() => statusMsg.textContent = "", 2500);
+  } catch (err) {
+    statusMsg.textContent = `⚠️ Error: ${err.message}`;
+    statusMsg.style.color = "#b91c1c";
+  }
+});
+
+async function deleteRecipe(id) {
+  if (!confirm("¿Eliminar esta receta?")) return;
+  await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  fetchRecipes();
+}
+
+// --- Calculadora de malta y agua ---
+const grainWaterForm = document.getElementById("grain-water-form");
+const grainWaterResult = document.getElementById("grain-water-result");
+
+grainWaterForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    og: parseFloat(document.getElementById("gw-og").value),
+    batch_liters: parseFloat(document.getElementById("gw-liters").value),
+    efficiency: (parseFloat(document.getElementById("gw-efficiency").value) || 70) / 100,
+    boil_time_minutes: parseFloat(document.getElementById("gw-boiltime").value) || 60,
+  };
+
+  try {
+    const res = await fetch(GRAIN_WATER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(JSON.stringify(err.detail));
+    }
+    const data = await res.json();
+    grainWaterResult.innerHTML = `
+      <div class="gw-result">
+        <div class="gw-stat"><strong>${data.grain_kg} kg</strong><span>de malta base</span></div>
+        <div class="gw-stat"><strong>${data.total_water_liters} L</strong><span>de agua total</span></div>
+      </div>
+      <p class="gw-breakdown">
+        Desglose de agua: ${data.breakdown.batch_liters}L batch final +
+        ${data.breakdown.boil_off_liters}L evaporación +
+        ${data.breakdown.grain_absorption_liters}L absorbida por el grano +
+        ${data.breakdown.trub_loss_liters}L de sedimento/trub.
+      </p>
+    `;
+  } catch (err) {
+    grainWaterResult.innerHTML = `<p class="empty">⚠️ Error: ${err.message}</p>`;
+  }
+});
+
+// --- Calculadora rápida de ABV ---
 const abvForm = document.getElementById("abv-form");
 const abvResult = document.getElementById("abv-result");
 
@@ -158,59 +213,4 @@ function useStyle(style) {
 }
 
 fetchStyles();
-fetchRecipes();
-    setTimeout(() => statusMsg.textContent = "", 2500);
-  } catch (err) {
-    statusMsg.textContent = `⚠️ Error: ${err.message}`;
-    statusMsg.style.color = "#b91c1c";
-  }
-});
-
-async function deleteRecipe(id) {
-  if (!confirm("¿Eliminar esta receta?")) return;
-  await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-  fetchRecipes();
-}
-
-// --- Calculadora de malta y agua ---
-const grainWaterForm = document.getElementById("grain-water-form");
-const grainWaterResult = document.getElementById("grain-water-result");
-
-grainWaterForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const payload = {
-    og: parseFloat(document.getElementById("gw-og").value),
-    batch_liters: parseFloat(document.getElementById("gw-liters").value),
-    efficiency: (parseFloat(document.getElementById("gw-efficiency").value) || 70) / 100,
-    boil_time_minutes: parseFloat(document.getElementById("gw-boiltime").value) || 60,
-  };
-
-  try {
-    const res = await fetch(GRAIN_WATER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(JSON.stringify(err.detail));
-    }
-    const data = await res.json();
-    grainWaterResult.innerHTML = `
-      <div class="gw-result">
-        <div class="gw-stat"><strong>${data.grain_kg} kg</strong><span>de malta base</span></div>
-        <div class="gw-stat"><strong>${data.total_water_liters} L</strong><span>de agua total</span></div>
-      </div>
-      <p class="gw-breakdown">
-        Desglose de agua: ${data.breakdown.batch_liters}L batch final +
-        ${data.breakdown.boil_off_liters}L evaporación +
-        ${data.breakdown.grain_absorption_liters}L absorbida por el grano +
-        ${data.breakdown.trub_loss_liters}L de sedimento/trub.
-      </p>
-    `;
-  } catch (err) {
-    grainWaterResult.innerHTML = `<p class="empty">⚠️ Error: ${err.message}</p>`;
-  }
-});
-
 fetchRecipes();
