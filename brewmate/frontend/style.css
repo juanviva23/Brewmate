@@ -33,6 +33,21 @@ main {
   padding: 0 20px;
 }
 
+.install-banner {
+  display: block;
+  width: 100%;
+  margin: 0 0 20px;
+  background: var(--dark);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.install-banner:hover { background: #1a110a; }
+
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -47,6 +62,13 @@ main {
   color: var(--amber-dark);
   border-bottom: 2px solid var(--border);
   padding-bottom: 8px;
+}
+
+.hint {
+  font-size: 0.82rem;
+  color: #8a7357;
+  margin-top: -4px;
+  margin-bottom: 14px;
 }
 
 .grid {
@@ -140,6 +162,57 @@ button:hover { background: var(--amber-dark); }
 }
 .delete-btn:hover { background: #fee2e2; border-radius: 6px; }
 .empty { color: #a08966; font-style: italic; }
+
+.gw-result {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.gw-stat {
+  background: #fff3e0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 20px;
+  text-align: center;
+}
+.gw-stat strong { display: block; font-size: 1.6rem; color: var(--amber-dark); }
+.gw-stat span { font-size: 0.8rem; color: #8a7357; }
+.gw-breakdown {
+  font-size: 0.82rem;
+  color: #8a7357;
+  margin-top: 12px;
+}
+
+.styles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.style-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  background: #fffdf8;
+  display: flex;
+  flex-direction: column;
+}
+.style-card h3 { margin: 0 0 4px; color: var(--amber-dark); font-size: 1.05rem; }
+.style-desc { font-size: 0.82rem; color: #7a6650; margin: 0 0 8px; }
+.yeast-box {
+  background: #fff3e0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  margin: 10px 0;
+}
+.yeast-box ul { margin: 4px 0 0; padding-left: 18px; }
+.yeast-box li { margin-bottom: 2px; }
+.use-style-btn {
+  margin-top: auto;
+  background: var(--amber-dark);
+}
+.use-style-btn:hover { background: #6b3006; }
 
 footer {
   text-align: center;
