@@ -1,7 +1,10 @@
 // BrewMate frontend — consume la API de FastAPI (backend/app.py)
-// Cambiá API_URL si desplegás el backend en otro lado (Render, Railway, etc.)
-// o si corrés el backend local en otro puerto.
-const API_URL = "http://localhost:8010/api/recipes";
+// Apunta al backend ya desplegado en Render. Si corrés todo local, cambiá esto
+// por "http://localhost:8010/api/recipes" (y el equivalente para GRAIN_WATER_URL).
+const API_URL = "https://brewmate-api.onrender.com/api/recipes";
+const GRAIN_WATER_URL = "https://brewmate-api.onrender.com/api/calculators/grain-water";
+const ABV_URL = "https://brewmate-api.onrender.com/api/calculators/abv";
+const STYLES_URL = "https://brewmate-api.onrender.com/api/styles";
 
 const form = document.getElementById("recipe-form");
 const list = document.getElementById("recipes-list");
@@ -16,8 +19,8 @@ async function fetchRecipes() {
   } catch (err) {
     const baseUrl = API_URL.replace("/api/recipes", "");
     list.innerHTML = `<p class="empty">⚠️ No se pudo conectar con el backend en <strong>${baseUrl}</strong>.<br>
-      Revisá que hayas ejecutado esto en una terminal, dentro de la carpeta <code>backend/</code>:<br>
-      <code>uvicorn app:app --reload --port 8010</code><br>
+      Si es la primera visita en un rato, el backend gratis de Render puede tardar
+      unos 30 segundos en "despertarse" — probá recargar en unos segundos.<br>
       (Detalle técnico: ${err.message})</p>`;
   }
 }
@@ -75,7 +78,87 @@ form.addEventListener("submit", async (e) => {
     statusMsg.textContent = "✅ Receta agregada";
     statusMsg.style.color = "#16a34a";
     form.reset();
-    fetchRecipes();
+    // --- Calculadora rápida de ABV ---
+const abvForm = document.getElementById("abv-form");
+const abvResult = document.getElementById("abv-result");
+
+abvForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    og: parseFloat(document.getElementById("abv-og").value),
+    fg: parseFloat(document.getElementById("abv-fg").value),
+  };
+  try {
+    const res = await fetch(ABV_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(JSON.stringify(err.detail));
+    }
+    const data = await res.json();
+    abvResult.innerHTML = `<div class="gw-result"><div class="gw-stat"><strong>${data.abv}%</strong><span>ABV estimado</span></div></div>`;
+  } catch (err) {
+    abvResult.innerHTML = `<p class="empty">⚠️ Error: ${err.message}</p>`;
+  }
+});
+
+// --- Estilos base ---
+const stylesList = document.getElementById("styles-list");
+
+async function fetchStyles() {
+  try {
+    const res = await fetch(STYLES_URL);
+    if (!res.ok) throw new Error("No se pudo conectar con la API");
+    const styles = await res.json();
+    renderStyles(styles);
+  } catch (err) {
+    stylesList.innerHTML = `<p class="empty">⚠️ No se pudieron cargar los estilos (${err.message})</p>`;
+  }
+}
+
+function renderStyles(styles) {
+  stylesList.innerHTML = styles.map(s => {
+    const ogMid = ((s.og_min + s.og_max) / 2).toFixed(3);
+    const fgMid = ((s.fg_min + s.fg_max) / 2).toFixed(3);
+    const abvEstimate = calcAbvClient(parseFloat(ogMid), parseFloat(fgMid));
+    return `
+    <div class="style-card">
+      <h3>${escapeHtml(s.name)}</h3>
+      <p class="style-desc">${escapeHtml(s.description)}</p>
+      <div class="recipe-stats">
+        <span>OG<strong>${s.og_min}–${s.og_max}</strong></span>
+        <span>FG<strong>${s.fg_min}–${s.fg_max}</strong></span>
+        <span>IBU<strong>${s.ibu_min}–${s.ibu_max}</strong></span>
+        <span>ABV~<strong>${abvEstimate}%</strong></span>
+      </div>
+      <div class="yeast-box">
+        <strong>🧫 Levadura recomendada:</strong>
+        <ul>${s.yeast_recommendations.map(y => `<li>${escapeHtml(y)}</li>`).join("")}</ul>
+      </div>
+      <button type="button" class="use-style-btn" onclick='useStyle(${JSON.stringify(s).replace(/'/g, "&apos;")})'>✨ Usar este estilo</button>
+    </div>
+  `;
+  }).join("");
+}
+
+function calcAbvClient(og, fg) {
+  return Math.round((og - fg) * 131.25 * 100) / 100;
+}
+
+function useStyle(style) {
+  document.getElementById("style").value = style.name;
+  document.getElementById("og").value = ((style.og_min + style.og_max) / 2).toFixed(3);
+  document.getElementById("fg").value = ((style.fg_min + style.fg_max) / 2).toFixed(3);
+  document.getElementById("ibu").value = Math.round((style.ibu_min + style.ibu_max) / 2);
+  document.getElementById("name").focus();
+  document.getElementById("name").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+fetchStyles();
+fetchRecipes();
     setTimeout(() => statusMsg.textContent = "", 2500);
   } catch (err) {
     statusMsg.textContent = `⚠️ Error: ${err.message}`;
@@ -88,5 +171,46 @@ async function deleteRecipe(id) {
   await fetch(`${API_URL}/${id}`, { method: "DELETE" });
   fetchRecipes();
 }
+
+// --- Calculadora de malta y agua ---
+const grainWaterForm = document.getElementById("grain-water-form");
+const grainWaterResult = document.getElementById("grain-water-result");
+
+grainWaterForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    og: parseFloat(document.getElementById("gw-og").value),
+    batch_liters: parseFloat(document.getElementById("gw-liters").value),
+    efficiency: (parseFloat(document.getElementById("gw-efficiency").value) || 70) / 100,
+    boil_time_minutes: parseFloat(document.getElementById("gw-boiltime").value) || 60,
+  };
+
+  try {
+    const res = await fetch(GRAIN_WATER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(JSON.stringify(err.detail));
+    }
+    const data = await res.json();
+    grainWaterResult.innerHTML = `
+      <div class="gw-result">
+        <div class="gw-stat"><strong>${data.grain_kg} kg</strong><span>de malta base</span></div>
+        <div class="gw-stat"><strong>${data.total_water_liters} L</strong><span>de agua total</span></div>
+      </div>
+      <p class="gw-breakdown">
+        Desglose de agua: ${data.breakdown.batch_liters}L batch final +
+        ${data.breakdown.boil_off_liters}L evaporación +
+        ${data.breakdown.grain_absorption_liters}L absorbida por el grano +
+        ${data.breakdown.trub_loss_liters}L de sedimento/trub.
+      </p>
+    `;
+  } catch (err) {
+    grainWaterResult.innerHTML = `<p class="empty">⚠️ Error: ${err.message}</p>`;
+  }
+});
 
 fetchRecipes();
