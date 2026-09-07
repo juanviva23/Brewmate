@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🍺 BrewMate — Calculadora de Recetas</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d97706">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BrewMate">
+
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,6 +22,56 @@
   </header>
 
   <main>
+    <button id="install-btn" class="install-banner" hidden>📲 Instalar BrewMate como app</button>
+
+    <section class="card">
+      <h2>🧪 Calculadora rápida de ABV</h2>
+      <p class="hint">Calculá el % de alcohol al instante, sin necesidad de guardar una receta.</p>
+      <form id="abv-form">
+        <div class="grid">
+          <label>OG (Densidad inicial)
+            <input type="number" id="abv-og" step="0.001" placeholder="1.050" required>
+          </label>
+          <label>FG (Densidad final)
+            <input type="number" id="abv-fg" step="0.001" placeholder="1.010" required>
+          </label>
+        </div>
+        <button type="submit">🧮 Calcular ABV</button>
+      </form>
+      <div id="abv-result"></div>
+    </section>
+
+    <section class="card">
+      <h2>📖 Estilos base</h2>
+      <p class="hint">Elegí un estilo para ver sus rangos típicos de OG/FG/IBU y la levadura recomendada. Podés usarlo como punto de partida para tu receta.</p>
+      <div id="styles-list" class="styles-grid">
+        <p class="empty">Cargando estilos...</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🌾 Calculadora de malta y agua</h2>
+      <p class="hint">Estimación para malta base tipo Pale/Pilsen. Los valores por defecto son típicos de un batch casero — ajustalos si tu equipo es distinto.</p>
+      <form id="grain-water-form">
+        <div class="grid">
+          <label>OG objetivo
+            <input type="number" id="gw-og" step="0.001" placeholder="1.050" required>
+          </label>
+          <label>Litros del batch
+            <input type="number" id="gw-liters" step="0.5" placeholder="20" required>
+          </label>
+          <label>Eficiencia de macerado (%)
+            <input type="number" id="gw-efficiency" step="1" placeholder="70">
+          </label>
+          <label>Tiempo de hervor (min)
+            <input type="number" id="gw-boiltime" step="5" placeholder="60">
+          </label>
+        </div>
+        <button type="submit">🧮 Calcular</button>
+      </form>
+      <div id="grain-water-result"></div>
+    </section>
+
     <section class="card">
       <h2>Nueva receta</h2>
       <form id="recipe-form">
@@ -57,5 +116,30 @@
   </footer>
 
   <script src="script.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(console.error);
+      });
+    }
+
+    let deferredPrompt;
+    const installBtn = document.getElementById("install-btn");
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.hidden = false;
+    });
+    installBtn?.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.hidden = true;
+    });
+    window.addEventListener("appinstalled", () => {
+      installBtn.hidden = true;
+    });
+  </script>
 </body>
 </html>
