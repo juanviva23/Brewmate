@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍺 BrewMate — Calculadora de Recetas</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🍺 BrewMate</h1>
+    <p class="subtitle">Calculadora y bitácora de recetas de cerveza casera</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Nueva receta</h2>
+      <form id="recipe-form">
+        <div class="grid">
+          <label>Nombre
+            <input type="text" id="name" placeholder="Ej: Session Hazy #4" required>
+          </label>
+          <label>Estilo
+            <input type="text" id="style" placeholder="Ej: NEPA" required>
+          </label>
+          <label>OG (Densidad inicial)
+            <input type="number" id="og" step="0.001" placeholder="1.050" required>
+          </label>
+          <label>FG (Densidad final)
+            <input type="number" id="fg" step="0.001" placeholder="1.010" required>
+          </label>
+          <label>IBU objetivo
+            <input type="number" id="ibu" step="1" placeholder="35">
+          </label>
+          <label>Litros del batch
+            <input type="number" id="liters" step="0.5" placeholder="20">
+          </label>
+        </div>
+        <label class="full">Notas
+          <textarea id="notes" placeholder="Lúpulos, levadura, dry hop, etc."></textarea>
+        </label>
+        <button type="submit">➕ Agregar receta</button>
+      </form>
+      <p id="status-msg"></p>
+    </section>
+
+    <section class="card">
+      <h2>Mis recetas</h2>
+      <div id="recipes-list" class="recipes-grid">
+        <p class="empty">Cargando recetas...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Proyecto de práctica — armado end-to-end con FastAPI + JS vanilla, pensado para aprender el flujo Claude Code / Codex.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
