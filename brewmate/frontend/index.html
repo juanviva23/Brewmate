@@ -1,72 +1,31 @@
-manifest.json icons/favicon-32.png icons/icon-180.png style.css https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer> ☰
-/logo-cat.png" alt="BrewMate" class="logo-img"> BrewMate
-🏠 Inicio 📖 Recetas ▾
-📝 Recetas propias 📚 Recetas base
-Cervecero casero 🍻
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrewMate — Calculadora de Recetas</title>
+manifest.json
+<meta name="theme-color" content="#d97706">
+<link rel="icon" type="image/pngapple-touch-icon" href="icons/icon-180pp-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BrewMate">
+<link rel="stylesherc="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defbutton id="sidebar-toggle" class="sidebar-toggle" aria-label="Abrir menu">&#9776;</button>
+<div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
-icons/logo-cat.png class="header-logo">BrewMate
-Calculadora y bitácora de recetas de cerveza casera
+<div class="app-shell">
 
-🧪 Calculadora rápida de ABV
-Calculá el % de alcohol al instante, sin necesidad de guardar una receta.
-
-OG (Densidad inicial) 
-1.050
- FG (Densidad final) 
-1.010
-🧮 Calcular ABV
-🌾 Calculadora de malta y agua
-Estimación para malta base tipo Pale/Pilsen. Los valores por defecto son típicos de un batch casero — ajustalos si tu equipo es distinto.
-
-OG objetivo 
-1.050
- Litros del batch 
-20
- Eficiencia de macerado (%) 
-70
- Tiempo de hervor (min) 
-60
-🧮 Calcular
-🌿 Calculadora de IBU (amargor)
-Fórmula de Tinseth. Agregá cada tanda de lúpulo con su gramaje, % de ácido alfa y tiempo de hervor.
-
-OG del mosto 
-1.050
- Litros del batch 
-20
-➕ Agregar lúpulo 🧮 Calcular IBU
-🔔 Recordatorios
-Activá notificaciones del navegador para avisos de medición y embotellado. Funcionan mientras tengas esta pestaña o la app abierta.
-
-🔔 Activar notificaciones
-Recordatorio 
-Ej: Medir densidad
- En cuántos días 
-7
-⏰ Programar recordatorio
-Nueva receta
-Nombre 
-Ej: Session Hazy #4
- Estilo 
-Ej: NEPA
- OG (Densidad inicial) 
-1.050
- FG (Densidad final) 
-1.010
- IBU objetivo 
-35
- Litros del batch 
-20
-Notas 
-Lúpulos, levadura, dry hop, etc.
-
- ➕ Agregar receta
-Mis recetas
-Cargando recetas...
-
-📖 Estilos base
-Elegí un estilo para ver sus rangos típicos de OG/FG/IBU y la levadura recomendada. Podés usarlo como punto de partida para tu receta.
-
-Cargando estilos...
-
-Proyecto de práctica — armado end-to-end con FastAPI + JS vanilla.
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="icons/logo-cat.png" alt="Brte</span>
+    </div>
+    <nav class="side-nav">
+      <button class="nav-item active" data-view="inicio">&#127968; Inicio</button>
+      <button class="nav-item nav-parent" data-toggle="recetas-submenu">
+        &#128214; Recetas <span class="chevron">&#9662;</span>
+      </button>
+      <div class="submenu open" id="recetas-submenu">
+        <button class="nav-subitem active" data-view="recetas-propias">&#128221; Recetas propias</button>
+        <button class="nav-subitem" data-view="recetas-base">&#128218; Recetas base</button>
+      </div>
+    </nav>
+    <p class="sidebar-footnote">Cervecero casero &#127867;</p>
+  </
