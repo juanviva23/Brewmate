@@ -4,28 +4,259 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BrewMate — Calculadora de Recetas</title>
-manifest.json
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#d97706">
-<link rel="icon" type="image/pngapple-touch-icon" href="icons/icon-180pp-capable" content="yes">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="BrewMate">
-<link rel="stylesherc="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defbutton id="sidebar-toggle" class="sidebar-toggle" aria-label="Abrir menu">&#9776;</button>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Abrir menu">&#9776;</button>
 <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
 <div class="app-shell">
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <img src="icons/logo-cat.png" alt="Brte</span>
+      <img src="icons/logo-cat.png" alt="" class="logo-img">
+      <span>BrewMate</span>
     </div>
     <nav class="side-nav">
-      <button class="nav-item active" data-view="inicio">&#127968; Inicio</button>
+      <button class="nav-item active" data-view="inicio">
+        <span class="nav-ico">&#127968;</span> Inicio
+      </button>
       <button class="nav-item nav-parent" data-toggle="recetas-submenu">
-        &#128214; Recetas <span class="chevron">&#9662;</span>
+        <span><span class="nav-ico">&#128214;</span> Recetas</span>
+        <span class="chevron">&#9662;</span>
       </button>
       <div class="submenu open" id="recetas-submenu">
-        <button class="nav-subitem active" data-view="recetas-propias">&#128221; Recetas propias</button>
-        <button class="nav-subitem" data-view="recetas-base">&#128218; Recetas base</button>
+        <button class="nav-subitem active" data-view="recetas-propias">Recetas propias</button>
+        <button class="nav-subitem" data-view="recetas-base">Recetas base</button>
       </div>
     </nav>
     <p class="sidebar-footnote">Cervecero casero &#127867;</p>
-  </
+  </aside>
+
+  <div class="main-wrapper">
+    <header>
+      <div class="header-inner">
+        <img src="icons/logo-cat.png" alt="" class="header-logo">
+        <div>
+          <h1>BrewMate</h1>
+          <p class="subtitle">Calculadora y bitacora de recetas de cerveza casera</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <button id="install-btn" class="install-banner" hidden>Instalar BrewMate como app</button>
+
+      <!-- ============ INICIO ============ -->
+      <section id="view-inicio" class="view active">
+
+        <section class="card">
+          <h2><span class="card-ico">&#129514;</span> Calculadora rapida de ABV</h2>
+          <p class="hint">Calcula el porcentaje de alcohol al instante, sin necesidad de guardar una receta.</p>
+          <form id="abv-form">
+            <div class="grid grid-2">
+              <label>OG (densidad inicial)
+                <input type="number" id="abv-og" step="0.001" placeholder="1.050" required>
+              </label>
+              <label>FG (densidad final)
+                <input type="number" id="abv-fg" step="0.001" placeholder="1.010" required>
+              </label>
+            </div>
+            <div class="actions">
+              <button type="submit">Calcular ABV</button>
+            </div>
+          </form>
+          <div id="abv-result"></div>
+        </section>
+
+        <section class="card">
+          <h2><span class="card-ico">&#127806;</span> Calculadora de malta y agua</h2>
+          <p class="hint">Estimacion para malta base tipo Pale o Pilsen. Ajusta los valores si tu equipo es distinto.</p>
+          <form id="grain-water-form">
+            <div class="grid">
+              <label>OG objetivo
+                <input type="number" id="gw-og" step="0.001" placeholder="1.050" required>
+              </label>
+              <label>Litros del batch
+                <input type="number" id="gw-liters" step="0.5" placeholder="20" required>
+              </label>
+              <label>Eficiencia de macerado (%)
+                <input type="number" id="gw-efficiency" step="1" placeholder="70">
+              </label>
+              <label>Tiempo de hervor (min)
+                <input type="number" id="gw-boiltime" step="5" placeholder="60">
+              </label>
+            </div>
+            <div class="actions">
+              <button type="submit">Calcular malta y agua</button>
+            </div>
+          </form>
+          <div id="grain-water-result"></div>
+        </section>
+
+        <section class="card">
+          <h2><span class="card-ico">&#127807;</span> Calculadora de IBU</h2>
+          <p class="hint">Formula de Tinseth. Agrega cada tanda de lupulo con su gramaje, porcentaje de acido alfa y tiempo de hervor.</p>
+          <form id="ibu-form">
+            <div class="grid grid-2">
+              <label>OG del mosto
+                <input type="number" id="ibu-og" step="0.001" placeholder="1.050" required>
+              </label>
+              <label>Litros del batch
+                <input type="number" id="ibu-liters" step="0.5" placeholder="20" required>
+              </label>
+            </div>
+            <div id="hop-rows"></div>
+            <div class="actions">
+              <button type="button" id="add-hop-row" class="secondary-btn">Agregar lupulo</button>
+              <button type="submit">Calcular IBU</button>
+            </div>
+          </form>
+          <div id="ibu-result"></div>
+        </section>
+
+        <section class="card">
+          <h2><span class="card-ico">&#128276;</span> Recordatorios</h2>
+          <p class="hint">Activa las notificaciones del navegador para recibir avisos de medicion y embotellado.</p>
+          <div class="actions">
+            <button id="notif-enable-btn" type="button" class="secondary-btn">Activar notificaciones</button>
+          </div>
+          <p id="notif-status" class="hint"></p>
+          <form id="reminder-form">
+            <div class="grid grid-2">
+              <label>Recordatorio
+                <input type="text" id="reminder-text" placeholder="Ej: medir densidad">
+              </label>
+              <label>En cuantos dias
+                <input type="number" id="reminder-days" step="1" placeholder="7">
+              </label>
+            </div>
+            <div class="actions">
+              <button type="submit">Programar recordatorio</button>
+            </div>
+          </form>
+          <div id="reminders-list"></div>
+        </section>
+
+      </section>
+
+      <!-- ============ RECETAS PROPIAS ============ -->
+      <section id="view-recetas-propias" class="view">
+
+        <section class="card">
+          <h2>Nueva receta</h2>
+          <p class="hint">Carga los datos de tu tanda. El ABV se calcula solo a partir de OG y FG.</p>
+          <form id="recipe-form">
+            <div class="grid">
+              <label>Nombre
+                <input type="text" id="name" placeholder="Ej: Session Hazy #4" required>
+              </label>
+              <label>Estilo
+                <input type="text" id="style" placeholder="Ej: NEPA" required>
+              </label>
+              <label>OG (densidad inicial)
+                <input type="number" id="og" step="0.001" placeholder="1.050" required>
+              </label>
+              <label>FG (densidad final)
+                <input type="number" id="fg" step="0.001" placeholder="1.010" required>
+              </label>
+              <label>IBU objetivo
+                <input type="number" id="ibu" step="1" placeholder="35">
+              </label>
+              <label>Litros del batch
+                <input type="number" id="liters" step="0.5" placeholder="20">
+              </label>
+            </div>
+            <label class="full">Notas
+              <textarea id="notes" placeholder="Lupulos, levadura, dry hop, temperaturas..."></textarea>
+            </label>
+            <div class="actions">
+              <button type="submit">Agregar receta</button>
+            </div>
+          </form>
+          <p id="status-msg"></p>
+        </section>
+
+        <section class="card">
+          <h2>Mis recetas</h2>
+          <div id="recipes-list" class="recipes-grid">
+            <p class="empty">Cargando recetas...</p>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- ============ RECETAS BASE ============ -->
+      <section id="view-recetas-base" class="view">
+        <section class="card">
+          <h2>Estilos base</h2>
+          <p class="hint">Elegi un estilo para ver sus rangos tipicos de OG, FG e IBU junto con la levadura recomendada.</p>
+          <div id="styles-list" class="styles-grid">
+            <p class="empty">Cargando estilos...</p>
+          </div>
+        </section>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>Proyecto personal — FastAPI + JavaScript vanilla.</p>
+    </footer>
+  </div>
+</div>
+
+<template id="hop-row-template">
+  <div class="hop-row">
+    <label>Lupulo
+      <input type="text" class="hop-name" placeholder="Ej: Citra">
+    </label>
+    <label>Gramos
+      <input type="number" class="hop-grams" step="1" placeholder="20">
+    </label>
+    <label>Acido alfa (%)
+      <input type="number" class="hop-alpha" step="0.1" placeholder="12">
+    </label>
+    <label>Minutos
+      <input type="number" class="hop-time" step="1" placeholder="60">
+    </label>
+    <button type="button" class="remove-hop-btn" title="Quitar">&#10006;</button>
+  </div>
+</template>
+
+<script src="script.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(console.error);
+    });
+  }
+  var deferredPrompt;
+  var installBtn = document.getElementById("install-btn");
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.hidden = false;
+  });
+  if (installBtn) {
+    installBtn.addEventListener("click", async function () {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.hidden = true;
+    });
+  }
+  window.addEventListener("appinstalled", function () {
+    if (installBtn) installBtn.hidden = true;
+  });
+</script>
+</body>
+</html>
